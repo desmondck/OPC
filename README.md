@@ -3,15 +3,7 @@ Design and implement OPC DA Server(2.05A) and OPC AE Server(1.10)
 
 ##OPC DA Server(2.05A)
 ```
-//Item ID关联的位号对象
-//基于以下几点考虑，此处采用导出类，而非导出接口
-//	1. 原有开发包为导出类，保持导出类可降低迁移成本。
-//	2. 导出接口有如下两种实现方式：
-//		a. 每个OPC服务器自己实现CTag类：
-//			CTag实现在不同的OPC服务器上并无差异，为可复用代码，各自实现导致代码冗余，增加成本，且CTag为并发访问对象。
-//		b. 由SDK实现CTag，并通过CreateTag创建对象
-//			丧失了继承CTag的能力
-class SC_OPC_DA_EXT_CLASS CTag
+class CTag
 {
 public:
 	CTag();
@@ -116,7 +108,7 @@ interface IOPCDACallback
 	virtual HRESULT WriteTags( DWORD dwCount, CTag** ppTags, VARIANT* pItemValues, HRESULT* ppErrors ) = 0;
 };
 
-class SC_OPC_DA_EXT_CLASS ScOpcDaSvr
+class ScOpcDaSvr
 {
 public:
 	ScOpcDaSvr();
@@ -168,5 +160,63 @@ public:
 	// 返回值:
 	//		连接客户端列表
 	IOpcDaCltInfoList*	GetClientInfoList();
+};
+```
+##OPC AE Server
+```
+interface IOpcAeCallback
+{
+	virtual const IOpcAreaNode* GetBrowser( DWORD& dwVersion, TCHAR& cSeparator ) = 0;
+
+	//参见IOPCEventServer:: CreateEventSubscription
+	virtual DWORD ReviseMaxSize( DWORD dwMaxSize ) const = 0;
+	virtual DWORD ReviseBufTime( DWORD dwBufferTime ) const = 0;
+
+	//OPC客户端执行报警确认
+	virtual HRESULT ClientAlarmAck( DWORD dwCount, IOpcConditionEvent** ppEvents, LPCTSTR pszAckId, LPCTSTR pszComment, HRESULT* pErrors ) = 0;
+};
+
+class SC_OPC_AE_CLASS ScOpcAeSvr
+{
+public:
+	ScOpcAeSvr();
+	~ScOpcAeSvr();
+	
+	void SetProductInfo( LPCTSTR strVendor, WORD wMajorVersion, WORD wMinorVersion, WORD wBuildNumber );
+	void SetState( OPCEVENTSERVERSTATE dwServerState );
+
+	//准备工作
+	void SetMaxClient( DWORD dwMaxCltCount );		//支持最大客户端的连接个数, 0表示无限制
+	void SetMaxEventCount( DWORD dwMaxEventCount );	//推送报警/事件上限，0表示无限制
+	void SetReportable( BOOL bReportable );
+	void SetCallback( IOpcAeCallback* pCallback );
+
+	//Category
+	void AddCategory( DWORD dwCategoryId, const OpcEventCategory& category );
+	void RemoveCategory( DWORD dwCategoryId );
+	void RemoveAllCategory();
+
+	//服务器启动/停止
+	BOOL StartServer( HINSTANCE hInstance, CLSID* pCLSID );
+	BOOL StopServer();
+	FILETIME GetStartTime();
+	
+	//服务器注册/反注册
+	HRESULT RegisterServer();
+	HRESULT UnregisterServer();
+	
+	//服务器使用状态
+	DWORD ServerInUse();
+
+	HRESULT ReportEvent( IOpcSimpleEvent* pEvent );
+
+	IOpcConditionEvent*	FindEvent( DWORD dwAreaDepth, DWORD* pdwAreaIds, LPCTSTR strSource, LPCTSTR strCondName );
+	
+	void RemoveEvent( DWORD dwAreaDepth, DWORD* pdwAreaIds, LPCTSTR strSource, LPCTSTR strCondName );
+	void RemoveEvents( DWORD dwAreaDepth, DWORD* pdwAreaIds, LPCTSTR strSource );
+
+	void RemoveAllEvents();
+private:
+	void*	m_pData;
 };
 ```
