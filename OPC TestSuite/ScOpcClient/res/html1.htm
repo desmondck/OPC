@@ -1,0 +1,80 @@
+/*
+	作者：王纯杰
+	描述：标准的OPC测试用例模板
+		该测试用例工具基于OPC DA 2.05A，测试时请参见该协议
+		1. 全部任务格式参见模板说明，测试可根据该模板自行创建测试用例
+		2. 每条任务内的格式固定：如添加位号，组名在前，下一行为位号列表，位号列表不允许手动换行
+		3. 运行配置为唯一可选参数项，默认为"运行配置:0|1|0|0"，表示"无延迟顺序运行此条任务，仅执行一次"
+		4. 目前支持//与/ * * /两种注释行(使用时/与*中不包含任何字符)，//目前不支持尾部追加注释，仅允许单独行注释
+		5. 模板中提及的数据类型为VARTYPE类型，目前支持的类型包括:
+			 *  VT_I2      2 byte signed int
+			 *  VT_I4      4 byte signed int
+			 *  VT_R4      4 byte real
+			 *  VT_R8      8 byte real
+			 *  VT_BSTR    OLE Automation string
+			 *  VT_BOOL    True=-1, False=0
+			 *  VT_I1      signed char
+			 *  VT_UI1     unsigned char
+			 *  VT_UI2     unsigned short
+			 *  VT_UI4     unsigned short
+			 *  VT_I8      signed 64-bit int
+			 *  VT_UI8     unsigned 64-bit int
+			 *  VT_INT     signed machine int
+			 *  VT_UINT    unsigned machine int
+		6. 断开连接任务执行前请用例保证其他任务已运行完毕，否则目前版本会异常，下一版本修复
+		7. 目前任务比较少，后续可按需补充
+*/
+连接		
+	//服务器地址|服务器名称
+	localhost|SUPCON.SCRTCore
+添加组	
+	//Name				Active	刷新周期(ms)	PercentDeadband
+	ScDefaultGroup1|	0|		0|				0
+	//可按上述格式添加多个组
+添加位号	
+	//可按此格式添加多组位号
+	组名:ScDefaultGroup1
+	//位号名(请求类型) 如MA_05.VALUE(VT_R4)	默认类型为服务器自身类型， 位号间以|分割
+	位号:MA_01.VALUE|MA_02.VALUE
+	
+同步读值
+	//			延迟时间|	运行次数|	运行间隔(ms)|	并发运行
+	运行配置:	1000|		1000|		1000|			1
+
+	数据源:Device
+	
+	//可按此格式添加多组位号
+	组名:ScDefaultGroup1
+	位号: MA_01.VALUE
+	
+	组名:ScDefaultGroup3
+	//如操作的是该组的全部位号，采用下述格式
+	位号: 全部		
+同步写值
+	//延迟时间|运行次数|运行间隔|并发运行
+	运行配置:1000|1000|1000|1
+
+	//值(值类型) 默认类型为VT_R4
+	数据值:1|2(VT_BSTR)|3(VT_R4)
+	
+	//可按此格式添加多组位号
+	组名:ScDefaultGroup1
+	位号: MA_02.VALUE
+异步读值(2)
+	//延迟时间|运行次数|运行间隔|并发运行
+	运行配置:1000|1000|1000|1
+
+	//可按此格式添加多组位号
+	组名:ScDefaultGroup1
+	位号: MA_01.VALUE
+异步写值(2)
+	//延迟时间|运行次数|运行间隔|并发运行
+	运行配置:500|1000|2000|1
+
+	//值(值类型) 默认类型为VT_R4
+	数据值:55|66(VT_BSTR)|77
+	
+	//可按此格式添加多组位号
+	组名:ScDefaultGroup1
+	位号: MA_02.VALUE
+//断开连接

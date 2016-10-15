@@ -1,0 +1,31 @@
+HKCR
+{
+  CBB.OpcAeDemoSvr.1 = s 'CBB.OpcAeDemoSvr'
+  {
+    CLSID = s '{6AE9F03B-825F-41BD-8F0C-88EE93688E15}'
+  }
+  CBB.OpcAeDemoSvr = s 'CBB.OpcAeDemoSvr'
+  {
+    CLSID = s '{6AE9F03B-825F-41BD-8F0C-88EE93688E15}'
+        OPC
+        {
+            Vendor = s 'SUPCON, Inc'
+        }
+  }
+  NoRemove CLSID
+  {
+    ForceRemove {6AE9F03B-825F-41BD-8F0C-88EE93688E15} = s 'CBB.OpcAeDemoSvr'
+    {
+      ProgID = s 'CBB.OpcAeDemoSvr.1'
+      VersionIndependentProgID = s 'CBB.OpcAeDemoSvr'
+      LocalServer32 = s '%MODULE%'
+      {
+        val ThreadingModel = s 'both'
+      }
+    }
+  }
+  NoRemove AppID
+  {
+    ForceRemove {6AE9F03B-825F-41BD-8F0C-88EE93688E15} = s 'CBB.OpcAeDemoSvr'
+  }
+}

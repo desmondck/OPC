@@ -1,0 +1,31 @@
+HKCR
+{
+  CBB.DemoDaSvr.1 = s 'CBB.DemoDaSvr'
+  {
+    CLSID = s '{474ADE1F-6E84-4DCF-9139-DE06EC6D9C89}'
+  }
+  CBB.DemoDaSvr = s 'CBB.DemoDaSvr'
+  {
+    CLSID = s '{474ADE1F-6E84-4DCF-9139-DE06EC6D9C89}'
+        OPC
+        {
+            Vendor = s 'SUPCON, Inc'
+        }
+  }
+  NoRemove CLSID
+  {
+    ForceRemove {474ADE1F-6E84-4DCF-9139-DE06EC6D9C89} = s 'CBB.DemoDaSvr'
+    {
+      ProgID = s 'CBB.DemoDaSvr.1'
+      VersionIndependentProgID = s 'CBB.DemoDaSvr'
+      LocalServer32 = s '%MODULE%'
+      {
+        val ThreadingModel = s 'both'
+      }
+    }
+  }
+  NoRemove AppID
+  {
+    ForceRemove {474ADE1F-6E84-4DCF-9139-DE06EC6D9C89} = s 'CBB.DemoDaSvr'
+  }
+}
